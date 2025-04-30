@@ -1,0 +1,79 @@
+C:\Users\ujjwa\Desktop\SmartMessManager\analytics.py
+    F 43:0 analytics - C
+    F 222:0 todays_waste_analysis - B
+    F 295:0 weekly_food_predictions - B
+    F 544:0 process_prediction_data - B
+    F 183:0 food_waste_data - A
+    F 414:0 process_avg_attendance_by_day - A
+    F 507:0 process_consumption_heatmap - A
+    F 345:0 analysis_dashboard - A
+    F 401:0 process_daily_attendance - A
+    F 432:0 process_consumption_data - A
+    F 591:0 extract_meal_type - A
+    F 15:0 dashboard - A
+    F 373:0 process_attendance_data - A
+    F 169:0 generate_predictions - A
+    F 331:0 generate_food_predictions - A
+    F 484:0 process_meal_type_consumption - A
+    F 469:0 process_daily_consumption - A
+C:\Users\ujjwa\Desktop\SmartMessManager\app.py
+    F 31:0 home - A
+    F 42:0 page_not_found - A
+    F 46:0 internal_server_error - A
+    F 51:0 inject_now - A
+C:\Users\ujjwa\Desktop\SmartMessManager\attendance.py
+    F 17:0 take_attendance - C
+    F 177:0 attendance_history - A
+    F 203:0 delete_attendance - A
+    F 224:0 attendance_report - A
+C:\Users\ujjwa\Desktop\SmartMessManager\auth.py
+    F 53:0 change_password - B
+    F 11:0 login - B
+    F 45:0 logout - A
+    F 95:0 login_required - A
+    F 105:0 admin_required - A
+C:\Users\ujjwa\Desktop\SmartMessManager\face_recognition_utils.py
+    F 140:0 recognize_face - B
+    F 13:0 detect_face - A
+    F 59:0 save_face_image - A
+    F 82:0 decode_base64_image - A
+    F 112:0 load_and_preprocess_image - A
+C:\Users\ujjwa\Desktop\SmartMessManager\menu.py
+    F 178:0 meal_preparation - C
+    F 96:0 edit_menu_item - C
+    F 43:0 add_menu_item - B
+    F 12:0 view_menu - B
+    F 317:0 meal_preparation_history - B
+    F 157:0 delete_menu_item - A
+    F 412:0 delete_meal_preparation - A
+C:\Users\ujjwa\Desktop\SmartMessManager\prediction.py
+    F 406:0 predict_food_quantity_for_week - D
+    F 259:0 train_food_prediction_model - C
+    F 140:0 generate_meal_recommendations - C
+    F 88:0 predict_meal_attendance - B
+    F 21:0 train_prediction_model - B
+    F 236:0 extract_features_from_meal_name - B
+    F 16:0 get_day_of_week - A
+C:\Users\ujjwa\Desktop\SmartMessManager\student.py
+    F 13:0 register_student - C
+    F 130:0 edit_student - C
+    F 92:0 delete_student - B
+    F 80:0 students_list - A
+C:\Users\ujjwa\Desktop\SmartMessManager\utils.py
+    F 13:0 init_data_files - B
+    F 51:0 read_csv - A
+    F 70:0 get_next_id - A
+    F 85:0 get_current_meal_type - A
+    F 126:0 get_meal_name_from_menu - A
+    F 8:0 ensure_dir_exists - A
+    F 61:0 write_csv - A
+    F 110:0 get_today_attendance_count - A
+    F 118:0 format_date - A
+    F 77:0 get_current_date - A
+    F 81:0 get_current_time - A
+    F 95:0 get_current_day_of_week - A
+    F 99:0 get_current_day_meal - A
+    F 105:0 get_students_count - A
+
+67 blocks (classes, functions, methods) analyzed.
+Average complexity: B (5.2835820895522385)
