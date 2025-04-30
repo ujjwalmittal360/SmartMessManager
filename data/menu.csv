@@ -1,0 +1,22 @@
+id,day,meal_type,meal_name,description
+1,Monday,Breakfast,Mon_Break_1,Poha with Tea
+2,Monday,Lunch,Mon_Lunch_1,Dal Tadka with Rice and Roti
+3,Monday,Dinner,Mon_Dinner_1,Paneer Butter Masala with Naan
+4,Tuesday,Breakfast,Tue_Break_1,Idli Sambar with Coffee
+5,Tuesday,Lunch,Tue_Lunch_1,Rajma Chawal with Salad
+6,Tuesday,Dinner,Tue_Dinner_1,Vegetable Biryani with Raita
+7,Wednesday,Breakfast,Wed_Break_1,Bread Omelette with Juice
+8,Wednesday,Lunch,Wed_Lunch_1,Chole Bhature with Pickle
+9,Wednesday,Dinner,Wed_Dinner_1,Aloo Gobi with Roti and Rice
+10,Thursday,Breakfast,Thu_Break_1,Upma with Tea
+11,Thursday,Lunch,Thu_Lunch_1,Kadhi Pakora with Rice
+12,Thursday,Dinner,Thu_Dinner_1,Matar Paneer with Naan
+13,Friday,Breakfast,Fri_Break_1,Dosa with Sambar and Chutney
+14,Friday,Lunch,Fri_Lunch_1,Pav Bhaji with Buttermilk
+15,Friday,Dinner,Fri_Dinner_1,Dal Makhani with Jeera Rice
+16,Saturday,Breakfast,Sat_Break_1,Aloo Paratha with Curd
+17,Saturday,Lunch,Sat_Lunch_1,Veg Pulao with Dal Fry
+18,Saturday,Dinner,Sat_Dinner_1,Chana Masala with Roti
+19,Sunday,Breakfast,Sun_Break_1,Chole Kulche with Tea
+20,Sunday,Lunch,Sun_Lunch_1,Special Thali with Sweet
+21,Sunday,Dinner,Sun_Dinner_1,Malai Kofta with Butter Naan

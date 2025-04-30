@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Attendance - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-clipboard-check"></i> Student Attendance & Meal Tracking</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('attendance.take_attendance') }}" id="attendanceForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="webcam-container mb-3">
+                        <video id="webcam-video" class="webcam-video" autoplay playsinline style="display: none;"></video>
+                        <canvas id="webcam-canvas" width="640" height="480" style="display: none;"></canvas>
+                        <div id="webcam-overlay" class="webcam-overlay">Processing...</div>
+                    </div>
+                    
+                    <div class="webcam-controls">
+                        <button type="button" id="start-webcam" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Start Camera
+                        </button>
+                        <button type="button" id="capture-image" class="btn btn-success" style="display: none;">
+                            <i class="fas fa-camera-retro"></i> Capture
+                        </button>
+                    </div>
+                    
+                    <!-- Hidden input to store the captured image -->
+                    <input type="hidden" name="image_data" id="image-data">
+                </div>
+                
+                <div class="col-md-6">
+                    <!-- Current Meal Information -->
+                    <div class="alert alert-info mb-3">
+                        <h5 class="mb-2"><i class="fas fa-utensils"></i> Today's Meal</h5>
+                        <p class="mb-1"><strong>Day:</strong> {{ current_day }}</p>
+                        <p class="mb-1"><strong>Meal:</strong> {{ current_meal }}</p>
+                        {% if current_meal_name %}
+                        <p class="mb-0"><strong>Menu:</strong> {{ current_meal_name }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="meal_type" class="form-label">Meal Type</label>
+                        <select class="form-select" id="meal_type" name="meal_type" required>
+                            {% for meal in meal_types %}
+                            <option value="{{ meal }}" {% if meal == current_meal %}selected{% endif %}>
+                                {{ meal }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="leftover_weight" class="form-label">Leftover Food Weight (kg)</label>
+                        <input type="number" class="form-control" id="leftover_weight" name="leftover_weight" 
+                               step="0.01" min="-1" max="1" value="0" required>
+                        <small class="form-text text-muted">
+                            Enter 0 for clean plate, positive value for waste, negative for special cases
+                        </small>
+                    </div>
+                    
+                    {% if student_name %}
+                    <div class="alert alert-success">
+                        <h4><i class="fas fa-check-circle"></i> Student Identified</h4>
+                        <p><strong>Name:</strong> {{ student_name }}</p>
+                        <p><strong>Roll Number:</strong> {{ student_roll }}</p>
+                        <p>Attendance recorded successfully!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary" id="attendance-btn">
+                    <i class="fas fa-save"></i> Record Attendance
+                </button>
+                <a href="{{ url_for('attendance.attendance_history') }}" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> View Attendance History
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Instruction Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Instructions</h3>
+    </div>
+    <div class="card-body">
+        <ol>
+            <li>Click "Start Camera" to activate the webcam</li>
+            <li>Ask the student to face the camera</li>
+            <li>Select the current meal type (default is automatically selected based on time)</li>
+            <li>Enter leftover food weight:
+                <ul>
+                    <li>Positive value (e.g., 0.25): Indicates measured food waste in kilograms</li>
+                    <li>Zero (0): Indicates clean plate, no waste</li>
+                    <li>Negative value (e.g., -0.1): Can be used for special cases</li>
+                </ul>
+            </li>
+            <li>Click "Capture" to take the student's photo</li>
+            <li>Click "Record Attendance" to save the attendance record</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize webcam with required element IDs
+        initWebcam(
+            'webcam-video',
+            'webcam-canvas',
+            'start-webcam',
+            'capture-image',
+            'image-data'
+        );
+        
+        // Form validation
+        document.getElementById('attendanceForm').addEventListener('submit', function(e) {
+            const imageData = document.getElementById('image-data').value;
+            if (!imageData) {
+                e.preventDefault();
+                alert('Please capture a student image before submitting');
+            }
+        });
+    });
+</script>
+{% endblock %}

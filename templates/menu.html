@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu Management - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2><i class="fas fa-utensils"></i> Weekly Menu</h2>
+        
+        {% if session.role == 'admin' %}
+        <a href="{{ url_for('menu.add_menu_item') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Menu Item
+        </a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="menu-grid">
+            {% for day in days %}
+            <div class="menu-day">
+                <div class="menu-day-header">
+                    {{ day }}
+                </div>
+                <div class="menu-items">
+                    {% for meal_type in meal_types %}
+                    <div class="menu-item">
+                        <div class="menu-item-type">{{ meal_type }}</div>
+                        {% if menu_by_day[day][meal_type] %}
+                            <div class="menu-item-desc">{{ menu_by_day[day][meal_type].description }}</div>
+                            {% if session.role == 'admin' %}
+                            <div class="meal-actions">
+                                <a href="{{ url_for('menu.edit_menu_item', menu_id=menu_by_day[day][meal_type].id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <form method="POST" action="{{ url_for('menu.delete_menu_item', menu_id=menu_by_day[day][meal_type].id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-delete">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="menu-item-desc text-muted">No menu item defined</div>
+                            {% if session.role == 'admin' %}
+                            <div class="meal-actions">
+                                <a href="{{ url_for('menu.add_menu_item') }}?day={{ day }}&meal_type={{ meal_type }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-plus"></i> Add
+                                </a>
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Meal Preparation Actions -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Meal Preparation</h3>
+    </div>
+    <div class="card-body">
+        <p>Record meal preparation details to track and analyze food waste.</p>
+        <div class="d-flex gap-3">
+            <a href="{{ url_for('menu.meal_preparation') }}" class="btn btn-primary">
+                <i class="fas fa-weight"></i> Record Meal Preparation
+            </a>
+            <a href="{{ url_for('menu.meal_preparation_history') }}" class="btn btn-secondary">
+                <i class="fas fa-history"></i> View Preparation History
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

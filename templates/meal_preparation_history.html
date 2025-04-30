@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Meal Preparation History - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2><i class="fas fa-history"></i> Meal Preparation History</h2>
+        <a href="{{ url_for('menu.meal_preparation') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Record New Preparation
+        </a>
+    </div>
+    <div class="card-body">
+        {% if meal_preps %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Meal Type</th>
+                        <th>Meal Name</th>
+                        <th>Description</th>
+                        <th>Prepared Quantity</th>
+                        <th>Actual Attendance</th>
+                        <th>Leftover Food (kg)</th>
+                        <th>Efficiency</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prep in meal_preps %}
+                    <tr>
+                        <td>{{ prep.date }}</td>
+                        <td>{{ prep.day }}</td>
+                        <td>{{ prep.meal_type }}</td>
+                        <td>{{ prep.meal_name }}</td>
+                        <td>{{ prep.description }}</td>
+                        <td>{{ prep.quantity_prepared }} kg</td>
+                        <td>{{ prep.actual_attendance }}</td>
+                        <td>{{ "%.2f"|format(prep.total_leftover) }} kg</td>
+                        <td>
+                            {% if prep.quantity_prepared > 0 %}
+                                {{ "%.1f"|format((prep.quantity_prepared - prep.total_leftover) / prep.quantity_prepared * 100) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if session.role == 'admin' %}
+                            <form method="POST" action="{{ url_for('menu.delete_meal_preparation', prep_id=prep.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger btn-delete">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No meal preparation records found.
+        </div>
+        <p>Start recording meal preparation data to see the history here.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Statistics Card -->
+{% if meal_preps %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Preparation Statistics</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-weight icon"></i>
+                    <div class="number">{{ "%.1f"|format(stats.total_prepared) }}</div>
+                    <div class="label">TOTAL FOOD PREPARED (KG)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-trash-alt icon"></i>
+                    <div class="number">{{ "%.1f"|format(stats.total_leftover) }}</div>
+                    <div class="label">TOTAL FOOD LEFTOVER (KG)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-users icon"></i>
+                    <div class="number">{{ stats.total_actual }}</div>
+                    <div class="label">TOTAL ACTUAL STUDENTS</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <i class="fas fa-clipboard-list icon"></i>
+                    <div class="number">{{ stats.total_preparations }}</div>
+                    <div class="label">TOTAL MEAL PREPARATIONS</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Food Waste Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if stats.total_prepared > 0 %}
+                            {% set waste_percentage = (stats.total_leftover / stats.total_prepared * 100)|round(1) %}
+                            {% set consumption_percentage = 100 - waste_percentage %}
+                            
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-success" style="width: {{ consumption_percentage }}%">
+                                    Consumed: {{ consumption_percentage }}%
+                                </div>
+                                <div class="progress-bar bg-danger" style="width: {{ waste_percentage }}%">
+                                    Waste: {{ waste_percentage }}%
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <p>Total Consumption: {{ "%.1f"|format(stats.total_prepared - stats.total_leftover) }} kg</p>
+                                <p>Total Waste: {{ "%.1f"|format(stats.total_leftover) }} kg</p>
+                            </div>
+                        {% else %}
+                            <p class="text-center">No data available for analysis</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Attendance Accuracy</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if stats.total_expected > 0 %}
+                            {% set accuracy_percentage = (stats.total_actual / stats.total_expected * 100)|round(1) %}
+                            {% if accuracy_percentage > 100 %}
+                                {% set overflow_percentage = accuracy_percentage - 100 %}
+                                {% set accuracy_percentage = 100 %}
+                                
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success" style="width: 100%">
+                                        Expected: 100%
+                                    </div>
+                                </div>
+                                <div class="progress mt-1" style="height: 25px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ overflow_percentage }}%">
+                                        Overflow: +{{ overflow_percentage }}%
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-success" style="width: {{ accuracy_percentage }}%">
+                                        Actual: {{ accuracy_percentage }}%
+                                    </div>
+                                    <div class="progress-bar bg-secondary" style="width: {{ 100 - accuracy_percentage }}%">
+                                        Shortfall: {{ (100 - accuracy_percentage)|round(1) }}%
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="text-center mt-3">
+                                <p>Expected Students: {{ stats.total_expected }}</p>
+                                <p>Actual Students: {{ stats.total_actual }}</p>
+                                <p>Difference: {{ stats.total_actual - stats.total_expected }} students</p>
+                            </div>
+                        {% else %}
+                            <p class="text-center">No data available for analysis</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

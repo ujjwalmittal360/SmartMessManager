@@ -1,0 +1,595 @@
+{% extends 'base.html' %}
+
+{% block title %}Advanced Analytics Dashboard | Mess Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        margin-bottom: 50px;
+    }
+    
+    .chart-container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+    
+    .chart-header {
+        border-bottom: 1px solid #eee;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    
+    .chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .chart-subtitle {
+        color: #6c757d;
+        font-size: 14px;
+        margin: 5px 0 0;
+    }
+    
+    .chart-area {
+        height: 300px;
+        position: relative;
+    }
+    
+    .chart-insights {
+        background-color: #f8f9fa;
+        border-left: 4px solid #077a7d;
+        margin-top: 15px;
+        padding: 10px 15px;
+    }
+    
+    .insights-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .dashboard-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        border-bottom: 2px solid #077a7d;
+        color: #077a7d;
+        font-size: 24px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+    
+    .metric-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .metric-value {
+        color: #077a7d;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 10px 0;
+    }
+    
+    .metric-label {
+        color: #6c757d;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+    
+    .metric-icon {
+        color: #077a7d;
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+    
+    .tab-navigation {
+        margin-bottom: 20px;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #495057;
+        font-weight: 600;
+        padding: 12px 20px;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background-color: transparent;
+        border-bottom: 3px solid #077a7d;
+        color: #077a7d;
+    }
+    
+    .nav-tabs .nav-link:hover:not(.active) {
+        border-bottom: 3px solid #ddd;
+    }
+    
+    /* Loading spinner */
+    .loading-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid #077a7d;
+        height: 40px;
+        left: 50%;
+        margin-left: -20px;
+        margin-top: -20px;
+        position: absolute;
+        top: 50%;
+        width: 40px;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Hidden data elements for charts -->
+    <script type="application/json" id="attendance-data">{{ attendance_data | safe }}</script>
+    <script type="application/json" id="consumption-data">{{ consumption_data | safe }}</script>
+    <script type="application/json" id="prediction-data">{{ prediction_data | safe }}</script>
+    
+    <div class="content-header mb-4">
+        <h1><i class="fas fa-chart-line"></i> Advanced Analytics Dashboard</h1>
+        <p class="lead">Comprehensive data analysis for mess operations, attendance patterns, and food management</p>
+    </div>
+    
+    {% if not data_available %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> Insufficient data for analytics dashboard. Please record student attendance and meal preparation data.
+    </div>
+    
+    <div class="text-center py-5">
+        <i class="fas fa-chart-bar" style="font-size: 5rem; color: #ccc;"></i>
+        <h3 class="mt-3">No Data Available</h3>
+        <p>You need to collect more data before you can view analytics.</p>
+        <div class="row mt-4">
+            <div class="col-md-4 mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">How to collect data</h5>
+                        <ul class="text-start">
+                            <li>Take student attendance</li>
+                            <li>Record meal preparation details</li>
+                            <li>Track leftover food for each meal</li>
+                        </ul>
+                        <a href="{{ url_for('attendance.take_attendance') }}" class="btn btn-primary">
+                            <i class="fas fa-clipboard-check"></i> Record Attendance
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <ul class="nav nav-tabs" id="analyticsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </button>
+            </li>
+            <li class="nav-item d-none" role="presentation">
+                <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab" aria-controls="attendance" aria-selected="false">
+                    <i class="fas fa-users"></i> Attendance
+                </button>
+            </li>
+            <li class="nav-item d-none" role="presentation">
+                <button class="nav-link" id="consumption-tab" data-bs-toggle="tab" data-bs-target="#consumption" type="button" role="tab" aria-controls="consumption" aria-selected="false">
+                    <i class="fas fa-utensils"></i> Consumption
+                </button>
+            </li>
+            <li class="nav-item d-none" role="presentation">
+                <button class="nav-link" id="prediction-tab" data-bs-toggle="tab" data-bs-target="#prediction" type="button" role="tab" aria-controls="prediction" aria-selected="false">
+                    <i class="fas fa-chart-line"></i> Prediction
+                </button>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="analyticsTabsContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+            <div class="dashboard-section">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="metric-value" id="avg-attendance">-</div>
+                            <div class="metric-label">Average Daily Attendance</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="metric-value" id="avg-consumption">-</div>
+                            <div class="metric-label">Average Daily Consumption (kg)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="metric-value" id="consumption-rate">-</div>
+                            <div class="metric-label">Consumption Rate</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="metric-value" id="total-wastage">-</div>
+                            <div class="metric-label">Total Wastage (kg)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <h2 class="section-title">Key Insights</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Daily Student Attendance</h3>
+                                <p class="chart-subtitle">Attendance patterns across meal types over time</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="overview-attendance-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Food Prepared vs Consumed</h3>
+                                <p class="chart-subtitle">Daily preparation and consumption trends</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="overview-consumption-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Meal Type Efficiency</h3>
+                                <p class="chart-subtitle">Food consumption rate by meal type</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="overview-efficiency-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Consumption Efficiency Heatmap</h3>
+                                <p class="chart-subtitle">Efficiency percentage by day and meal type</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="overview-heatmap-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attendance Tab -->
+        <div class="tab-pane fade d-none" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+            <div class="dashboard-section">
+                <h2 class="section-title">Attendance Analysis</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Daily Student Attendance by Meal Type</h3>
+                                <p class="chart-subtitle">Attendance trends over the last 30 days</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="daily-attendance-chart"></canvas>
+                            </div>
+                            <div class="chart-insights">
+                                <div class="insights-title">Key Insights:</div>
+                                <ul>
+                                    <li>Track attendance patterns to identify peak days</li>
+                                    <li>Compare meal popularity across different days</li>
+                                    <li>Identify trends in student preferences</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Average Attendance by Day of Week</h3>
+                                <p class="chart-subtitle">Comparison of meal attendance across weekdays</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="day-attendance-chart"></canvas>
+                            </div>
+                            <div class="chart-insights">
+                                <div class="insights-title">How to use this data:</div>
+                                <ul>
+                                    <li>Plan staffing based on attendance patterns</li>
+                                    <li>Adjust food preparation quantities by day</li>
+                                    <li>Identify days with unexpectedly low attendance</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Attendance Trend Analysis</h3>
+                                <p class="chart-subtitle">Weekly or monthly changes in attendance</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="attendance-trend-chart"></canvas>
+                            </div>
+                            <div class="chart-insights">
+                                <div class="insights-title">Long-term planning:</div>
+                                <p>Monitor attendance trends over time to adjust operations. Steady increases may require additional staff or equipment, while decreases might indicate issues with food quality or student satisfaction.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Consumption Tab -->
+        <div class="tab-pane fade d-none" id="consumption" role="tabpanel" aria-labelledby="consumption-tab">
+            <div class="dashboard-section">
+                <h2 class="section-title">Food Consumption Analysis</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Food Prepared vs Consumed</h3>
+                                <p class="chart-subtitle">Daily comparison over the last 30 days</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="food-consumption-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Food Quantities by Meal Type</h3>
+                                <p class="chart-subtitle">Comparison across different meal types</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="meal-leftover-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Total Food Consumption vs Leftover</h3>
+                                <p class="chart-subtitle">Overall consumption efficiency</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="total-consumption-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Consumption Efficiency by Day & Meal Type</h3>
+                                <p class="chart-subtitle">Percentage of food consumed</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="consumption-heatmap"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Meal with Highest Consumption</h3>
+                                <p class="chart-subtitle">Most popular meal by consumption</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="highest-consumption-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Meal with Highest Wastage</h3>
+                                <p class="chart-subtitle">Meal with most leftovers</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="highest-wastage-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Prediction Tab -->
+        <div class="tab-pane fade d-none" id="prediction" role="tabpanel" aria-labelledby="prediction-tab">
+            <div class="dashboard-section">
+                <h2 class="section-title">Prediction Analysis</h2>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Actual vs Predicted Food Demand</h3>
+                                <p class="chart-subtitle">Comparison over time</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="prediction-accuracy-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Predicted vs Actual Food Consumption</h3>
+                                <p class="chart-subtitle">Correlation analysis</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="prediction-scatter-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Distribution of Food Consumption Rates</h3>
+                                <p class="chart-subtitle">Histogram of consumption per student</p>
+                            </div>
+                            <div class="chart-area">
+                                <canvas id="consumption-histogram"></canvas>
+                            </div>
+                            <div class="chart-insights">
+                                <div class="insights-title">Using this distribution:</div>
+                                <p>This histogram shows the distribution of food consumption rates (kg per student). The most common rates indicate the typical amount of food consumed by students, which can help in more accurate meal planning.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Food Prediction Model</h5>
+                                <a href="{{ url_for('analytics.weekly_food_predictions') }}" class="btn btn-primary">
+                                    <i class="fas fa-calendar-week"></i> View Weekly Predictions
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <p>The prediction model uses machine learning to analyze historical data and predict future food requirements. It considers:</p>
+                                <ul>
+                                    <li>Historical attendance patterns</li>
+                                    <li>Day-of-week and meal type variations</li>
+                                    <li>Consumption rates per student</li>
+                                    <li>Recent trends and seasonal factors</li>
+                                </ul>
+                                <p>To improve prediction accuracy, continue recording detailed attendance and consumption data.</p>
+                                
+                                <form action="{{ url_for('analytics.generate_food_predictions') }}" method="post" class="mt-3">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-sync"></i> Regenerate Predictions
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/analysis_dashboard.js') }}"></script>
+{% if data_available %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Parse JSON data from server
+        const attendanceData = JSON.parse(document.getElementById('attendance-data').textContent || '{}');
+        const consumptionData = JSON.parse(document.getElementById('consumption-data').textContent || '{}');
+        
+        // Update overview metrics
+        if (attendanceData && attendanceData.dates) {
+            // Calculate average daily attendance
+            let totalAttendance = 0;
+            let totalDays = 0;
+            
+            if (attendanceData.breakfast) {
+                totalAttendance += attendanceData.breakfast.reduce((a, b) => a + b, 0);
+                totalDays = attendanceData.breakfast.length;
+            }
+            if (attendanceData.lunch) {
+                totalAttendance += attendanceData.lunch.reduce((a, b) => a + b, 0);
+            }
+            if (attendanceData.dinner) {
+                totalAttendance += attendanceData.dinner.reduce((a, b) => a + b, 0);
+            }
+            
+            const avgAttendance = Math.round(totalAttendance / (totalDays * 3));
+            document.getElementById('avg-attendance').textContent = avgAttendance;
+        }
+        
+        if (consumptionData && consumptionData.dates) {
+            // Calculate average daily consumption
+            if (consumptionData.consumed) {
+                const totalConsumed = consumptionData.consumed.reduce((a, b) => a + b, 0);
+                const avgConsumed = (totalConsumed / consumptionData.consumed.length).toFixed(1);
+                document.getElementById('avg-consumption').textContent = avgConsumed;
+            }
+            
+            // Calculate consumption rate
+            if (consumptionData.total_prepared && consumptionData.total_consumed) {
+                const consumptionRate = (consumptionData.total_consumed / consumptionData.total_prepared * 100).toFixed(1);
+                document.getElementById('consumption-rate').textContent = consumptionRate + '%';
+            }
+            
+            // Calculate total wastage
+            if (consumptionData.total_leftover !== undefined) {
+                document.getElementById('total-wastage').textContent = consumptionData.total_leftover.toFixed(1);
+            }
+        }
+        
+        // Initialize charts
+        initDailyAttendanceChart(attendanceData);
+        initFoodConsumptionChart(consumptionData);
+        initMealEfficiencyChart(consumptionData);
+        initConsumptionHeatmap(consumptionData);
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Meal Preparation - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-weight"></i> Meal Preparation Data Entry</h2>
+    </div>
+    <div class="card-body">
+        {% if current_meal %}
+        <div class="alert alert-info mb-4">
+            <h5 class="mb-2"><i class="fas fa-utensils"></i> Today's Meal Information</h5>
+            <p class="mb-1"><strong>Day:</strong> {{ current_meal.day }}</p>
+            <p class="mb-1"><strong>Meal:</strong> {{ current_meal.meal_type }}</p>
+            <p class="mb-1"><strong>Menu:</strong> {{ current_meal.description }}</p>
+            <p class="mb-1"><strong>Date:</strong> {{ today }}</p>
+            <p class="mb-0"><strong>Actual Attendance:</strong> {{ actual_attendance }} students</p>
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="{{ url_for('menu.meal_preparation') }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="meal_name" class="form-label">Meal</label>
+                        <select class="form-control" id="meal_name" name="meal_name" required>
+                            <option value="">Select a meal...</option>
+                            {% for meal in meal_options %}
+                            <option value="{{ meal.meal_name }}" {% if current_meal and meal.meal_name == current_meal.meal_name %}selected{% endif %}>
+                                {{ meal.day }} - {{ meal.meal_type }} ({{ meal.description|truncate(30) }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ today }}" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="expected_students" class="form-label">Expected Students Count</label>
+                        <input type="number" class="form-control" id="expected_students" name="expected_students" min="1" value="{{ actual_attendance }}" required>
+                        <small class="form-text text-muted">
+                            Auto-filled with today's actual attendance count, but you can adjust as needed.
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="quantity_prepared" class="form-label">Quantity Prepared (kg)</label>
+                        <input type="number" class="form-control" id="quantity_prepared" name="quantity_prepared" step="0.01" min="0.1" required>
+                        <small class="form-text text-muted">
+                            Enter the total quantity of food prepared for this meal in kilograms.
+                        </small>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="leftover_weight" class="form-label">Leftover Food Weight (kg)</label>
+                        <input type="number" class="form-control" id="leftover_weight" name="leftover_weight" step="0.01" min="0" value="0">
+                        <small class="form-text text-muted">
+                            Enter the weight of leftover food after the meal. Consumption will be calculated automatically.
+                        </small>
+                    </div>
+                    
+                    <div class="alert alert-secondary">
+                        <p class="mb-0"><strong>Consumption:</strong> <span id="consumption-display">Will be calculated</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Preparation Data
+                </button>
+                <a href="{{ url_for('menu.meal_preparation_history') }}" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> View Preparation History
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Information Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>About Meal Preparation Tracking</h3>
+    </div>
+    <div class="card-body">
+        <p>This data is essential for food waste analysis and future meal planning. The system uses this information to:</p>
+        <ul>
+            <li>Calculate food waste percentage per meal</li>
+            <li>Track preparation efficiency over time</li>
+            <li>Generate recommendations for future meal preparations</li>
+            <li>Help reduce overall food waste</li>
+        </ul>
+        <p>For accurate analytics, please ensure the preparation quantities are entered in kilograms and the student count estimates are as accurate as possible.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityPreparedInput = document.getElementById('quantity_prepared');
+        const leftoverWeightInput = document.getElementById('leftover_weight');
+        const consumptionDisplay = document.getElementById('consumption-display');
+        
+        // Function to calculate and display consumption
+        function calculateConsumption() {
+            const quantityPrepared = parseFloat(quantityPreparedInput.value) || 0;
+            const leftoverWeight = parseFloat(leftoverWeightInput.value) || 0;
+            
+            if (quantityPrepared > 0) {
+                const consumption = Math.max(0, quantityPrepared - leftoverWeight).toFixed(2);
+                consumptionDisplay.textContent = `${consumption} kg`;
+                
+                // Change color based on waste percentage
+                const wastePercentage = (leftoverWeight / quantityPrepared) * 100;
+                if (wastePercentage > 20) {
+                    consumptionDisplay.parentElement.parentElement.className = 'alert alert-danger';
+                } else if (wastePercentage > 10) {
+                    consumptionDisplay.parentElement.parentElement.className = 'alert alert-warning';
+                } else {
+                    consumptionDisplay.parentElement.parentElement.className = 'alert alert-success';
+                }
+            } else {
+                consumptionDisplay.textContent = 'Will be calculated';
+                consumptionDisplay.parentElement.parentElement.className = 'alert alert-secondary';
+            }
+        }
+        
+        // Add event listeners
+        quantityPreparedInput.addEventListener('input', calculateConsumption);
+        leftoverWeightInput.addEventListener('input', calculateConsumption);
+        
+        // Calculate on page load
+        calculateConsumption();
+    });
+</script>
+{% endblock %}

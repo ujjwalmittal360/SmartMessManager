@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-heading">
+    <h1>Dashboard</h1>
+    <div class="dashboard-date">{{ today }}</div>
+</div>
+
+<!-- Quick Actions -->
+<h3 class="mb-4">Quick Actions</h3>
+<div class="quick-actions">
+    <a href="{{ url_for('attendance.take_attendance') }}" class="action-card">
+        <i class="fas fa-camera"></i>
+        <h3>Take Attendance</h3>
+        <p>Record student meals and food waste using facial recognition</p>
+    </a>
+    
+    <a href="{{ url_for('student.register_student') }}" class="action-card">
+        <i class="fas fa-user-plus"></i>
+        <h3>Register Student</h3>
+        <p>Add a new student with face image for recognition</p>
+    </a>
+    
+    <a href="{{ url_for('menu.meal_preparation') }}" class="action-card">
+        <i class="fas fa-balance-scale"></i>
+        <h3>Record Waste</h3>
+        <p>Enter meal preparation details and track wastage</p>
+    </a>
+    
+    <a href="{{ url_for('menu.view_menu') }}" class="action-card">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>Manage Dishes</h3>
+        <p>Create and update the mess menu</p>
+    </a>
+    
+    <a href="{{ url_for('analytics.analysis_dashboard') }}" class="action-card">
+        <i class="fas fa-chart-bar"></i>
+        <h3>Analytics & Food Insights</h3>
+        <p>Visualize attendance patterns, food consumption, and waste metrics</p>
+    </a>
+</div>
+
+<h3 class="mt-5 mb-3">Overview of Mess Operations and Key Metrics</h3>
+
+<!-- Summary Cards -->
+<div class="dashboard-summary">
+    <div class="stats-card">
+        <i class="fas fa-user-graduate icon"></i>
+        <div class="number">{{ total_students }}</div>
+        <div class="label">TOTAL STUDENTS</div>
+    </div>
+    
+    <div class="stats-card">
+        <i class="fas fa-coffee icon"></i>
+        <div class="number">{{ breakfast_count }}</div>
+        <div class="label">BREAKFAST TODAY</div>
+    </div>
+    
+    <div class="stats-card">
+        <i class="fas fa-utensils icon"></i>
+        <div class="number">{{ lunch_count }}</div>
+        <div class="label">LUNCH TODAY</div>
+    </div>
+    
+    <div class="stats-card">
+        <i class="fas fa-moon icon"></i>
+        <div class="number">{{ dinner_count }}</div>
+        <div class="label">DINNER TODAY</div>
+    </div>
+</div>
+
+<!-- Charts and Analysis -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Food Waste - Last 7 Days
+            </div>
+            <div class="card-body">
+                <div id="food-waste-chart" style="height: 300px;">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                Today's Waste Analysis
+            </div>
+            <div class="card-body">
+                <div id="todays-waste-analysis" style="height: 300px;">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Predictions -->
+<div class="card mt-4">
+    <div class="card-header">
+        Predictions & Planning
+    </div>
+    <div class="card-body">
+        {% if predictions_available %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            Predictions for tomorrow's meals are available. Visit the Analytics page to view detailed recommendations.
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            No predictions available for tomorrow.
+        </div>
+        <p>Generate predictions to see recommended preparation quantities for tomorrow's meals.</p>
+        <form action="{{ url_for('analytics.generate_predictions') }}" method="post">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-magic"></i> Generate Predictions
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize charts when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initFoodWasteChart();
+        initTodaysWasteAnalysis();
+    });
+</script>
+{% endblock %}

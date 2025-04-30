@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Mess Management System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Mess Management System</h1>
+        <p class="hero-subtitle">An advanced system for mess management with face recognition attendance tracking, food waste analysis, and predictive preparation planning.</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+        </a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Key Features</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3 class="feature-title">Face Recognition</h3>
+                <p class="feature-description">
+                    Automated attendance tracking system using facial recognition technology for mess entry.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h3 class="feature-title">Waste Analysis</h3>
+                <p class="feature-description">
+                    Track and analyze food waste to identify patterns and implement waste reduction strategies.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="feature-title">Smart Predictions</h3>
+                <p class="feature-description">
+                    Use historical data to predict attendance and optimize food preparation quantities.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Key Benefits</h2>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-success fs-4 me-3"></i>
+                    </div>
+                    <div>
+                        <h4>Reduced Food Waste</h4>
+                        <p>Track and analyze waste data to optimize food preparation quantities and reduce overall waste.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-success fs-4 me-3"></i>
+                    </div>
+                    <div>
+                        <h4>Data-Driven Decisions</h4>
+                        <p>Use analytics and visualizations to make informed decisions about meal planning.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-success fs-4 me-3"></i>
+                    </div>
+                    <div>
+                        <h4>Streamlined Operations</h4>
+                        <p>Automate attendance tracking and data collection to improve operational efficiency.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-success fs-4 me-3"></i>
+                    </div>
+                    <div>
+                        <h4>Cost Savings</h4>
+                        <p>Optimize resource allocation and reduce expenses through data-driven preparation planning.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to optimize your mess management?</h2>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-sign-in-alt"></i> Get Started
+        </a>
+    </div>
+</section>
+{% endblock %}

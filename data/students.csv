@@ -1,0 +1,16 @@
+id,name,roll_number,image_path,registration_date
+2,Priya Patel,102,static/student_images/102.jpg,2023-01-15
+3,Amit Kumar,103,static/student_images/103.jpg,2023-01-16
+4,Shreya Sharma,104,static/student_images/104.jpg,2023-01-16
+5,Varun Gupta,105,static/student_images/student_5.jpg,2023-01-17
+6,Neha Verma,106,static/student_images/106.jpg,2023-01-17
+7,Sanjay Reddy,107,static/student_images/107.jpg,2023-01-18
+8,Meera Joshi,108,static/student_images/108.jpg,2023-01-18
+9,Ravi Tiwari,109,static/student_images/109.jpg,2023-01-19
+10,Ananya Desai,110,static/student_images/110.jpg,2023-01-19
+11,Vikram Malhotra,111,static/student_images/111.jpg,2023-01-20
+12,Pooja Saxena,112,static/student_images/112.jpg,2023-01-20
+13,Ashok Rajput,113,static/student_images/113.jpg,2023-01-21
+14,Deepa Malik,114,static/student_images/114.jpg,2023-01-21
+15,Karan Agarwal,115,static/student_images/115.jpg,2023-01-22
+16,akhil,98176,static/student_images\student_16.jpg,2025-04-30

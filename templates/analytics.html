@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-chart-pie"></i> Food Waste Analytics</h2>
+    </div>
+    <div class="card-body">
+        {% if not data_available %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Insufficient data for analytics.
+        </div>
+        <p>Please record student attendance and meal preparation data to enable analytics.</p>
+        {% else %}
+        
+        <!-- Wastage Statistics -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-weight-hanging icon"></i>
+                    <div class="number">{{ wastage_stats.total_wastage }}</div>
+                    <div class="label">TOTAL FOOD WASTE</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-drumstick-bite icon"></i>
+                    <div class="number">{{ wastage_stats.total_prepared }}</div>
+                    <div class="label">TOTAL FOOD PREPARED</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-percentage icon"></i>
+                    <div class="number">{{ wastage_stats.wastage_percentage }}</div>
+                    <div class="label">WASTE PERCENTAGE</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Wastage Charts -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3>Historical Wastage Trend</h3>
+                    <canvas id="historical-wastage-chart" height="300"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3>Wastage by Meal Type</h3>
+                    <canvas id="meal-type-wastage-chart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Student Wastage Rankings -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>Students with Highest Food Wastage</h3>
+            </div>
+            <div class="card-body">
+                {% if student_wastage %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Student</th>
+                                        <th>Roll Number</th>
+                                        <th>Total Waste (kg)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in student_wastage %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ student.name }}</td>
+                                        <td>{{ student.roll_number }}</td>
+                                        <td>{{ student.leftover_weight|round(2) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="student-wastage-chart" height="300"></canvas>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No student wastage data available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Predictions Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Tomorrow's Predictions</h3>
+    </div>
+    <div class="card-body">
+        {% if attendance_prediction %}
+        <p>Based on historical data, here are the predicted attendance and recommended food preparation quantities for tomorrow:</p>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Meal Type</th>
+                        <th>Predicted Students</th>
+                        <th>Recommended Preparation (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meal_type, prediction in attendance_prediction.items() %}
+                    <tr>
+                        <td>{{ meal_type }}</td>
+                        <td>{{ prediction }}</td>
+                        <td>{{ (prediction * 0.5)|round(2) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle"></i> 
+            These predictions are based on historical attendance patterns. The system recommends preparing approximately 0.5 kg of food per student, adjusted based on past waste data.
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 
+            Not enough historical data to make accurate predictions. Continue recording attendance and meal preparation data.
+        </div>
+        {% endif %}
+        
+        <form action="{{ url_for('analytics.generate_predictions') }}" method="post" class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-sync"></i> Update Predictions
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if data_available %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize historical wastage chart
+        const dates = {{ dates|safe }};
+        const wastageValues = {{ wastage_values|safe }};
+        initHistoricalWastageChart(dates, wastageValues);
+        
+        // Initialize meal type wastage chart
+        const mealTypeData = [
+            {% for meal in meal_type_wastage %}
+            {
+                meal_type: "{{ meal.meal_type }}",
+                leftover_weight: {{ meal.leftover_weight }}
+            },
+            {% endfor %}
+        ];
+        initMealTypeWastageChart(mealTypeData);
+        
+        // Initialize student wastage chart
+        const studentData = [
+            {% for student in student_wastage %}
+            {
+                name: "{{ student.name }}",
+                leftover_weight: {{ student.leftover_weight }}
+            },
+            {% endfor %}
+        ];
+        initStudentWastageChart(studentData);
+    });
+</script>
+{% endif %}
+{% endblock %}

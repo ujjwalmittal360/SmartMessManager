@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Student - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-user-edit"></i> Edit Student</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('student.edit_student', student_id=student.id) }}" id="editForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ student.name }}" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="roll_number" class="form-label">Roll Number</label>
+                        <input type="text" class="form-control" id="roll_number" name="roll_number" value="{{ student.roll_number }}" required>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        You can update the student's face image by capturing a new photo. If you don't capture a new image, the existing one will be used.
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="webcam-container mb-3">
+                        <video id="webcam-video" class="webcam-video" autoplay playsinline style="display: none;"></video>
+                        <canvas id="webcam-canvas" width="640" height="480" style="display: none;"></canvas>
+                        <div id="webcam-overlay" class="webcam-overlay">Processing...</div>
+                    </div>
+                    
+                    <div class="webcam-controls">
+                        <button type="button" id="start-webcam" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Start Camera
+                        </button>
+                        <button type="button" id="capture-image" class="btn btn-success" style="display: none;">
+                            <i class="fas fa-camera-retro"></i> Capture
+                        </button>
+                    </div>
+                    
+                    <div id="countdown" style="display: none; font-size: 2rem; text-align: center; margin-top: 10px;"></div>
+                    
+                    <!-- Hidden input to store the captured image -->
+                    <input type="hidden" name="image_data" id="image-data">
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Student
+                </button>
+                <a href="{{ url_for('student.students_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize webcam with required element IDs
+        initWebcam(
+            'webcam-video',
+            'webcam-canvas',
+            'start-webcam',
+            'capture-image',
+            'countdown',
+            'image-data'
+        );
+    });
+</script>
+{% endblock %}

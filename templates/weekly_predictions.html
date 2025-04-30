@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Weekly Food Predictions | Mess Management System{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="content-header">
+        <h1><i class="fas fa-chart-line"></i> Weekly Food Quantity Predictions</h1>
+        <p class="lead">Predicted food quantities for next week based on historical data analysis</p>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Food Quantity Predictions</h5>
+            <form action="{{ url_for('analytics.generate_food_predictions') }}" method="post">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Regenerate Predictions
+                </button>
+            </form>
+        </div>
+        <div class="card-body">
+            {% if predictions_available %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> These predictions are generated using machine learning based on historical attendance and consumption patterns. Actual quantities may vary.
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Day</th>
+                                {% for meal_type in meal_types %}
+                                <th>{{ meal_type }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in days_of_week %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ day }}</strong>
+                                        {% if days_data.get(day) %}
+                                            <div class="text-muted small">{{ days_data[day]['date'] }}</div>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    {% for meal_type in meal_types %}
+                                        <td>
+                                            {% if days_data.get(day) and days_data[day]['meals'].get(meal_type) %}
+                                                <div class="prediction-quantity">
+                                                    <span class="h5">{{ days_data[day]['meals'][meal_type]['predicted_quantity'] }} kg</span>
+                                                </div>
+                                                <div class="small text-muted">
+                                                    Expected students: {{ days_data[day]['meals'][meal_type]['expected_students'] }}
+                                                </div>
+                                                <div class="small">
+                                                    <strong>Menu:</strong> {{ days_data[day]['meals'][meal_type]['menu_description'] }}
+                                                </div>
+                                                {% if days_data[day]['meals'][meal_type].get('note') %}
+                                                    <div class="small text-warning">
+                                                        <i class="fas fa-exclamation-triangle"></i> {{ days_data[day]['meals'][meal_type]['note'] }}
+                                                    </div>
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="text-muted">No prediction</span>
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>How to use these predictions:</h5>
+                    <ul>
+                        <li>These are <strong>suggested quantities</strong> based on historical data and patterns</li>
+                        <li>Consider adjusting quantities based on special events or holidays</li>
+                        <li>Update the model regularly by clicking "Regenerate Predictions" as more data is collected</li>
+                        <li>Monitor actual consumption and compare with predictions to improve accuracy</li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Not enough historical data to generate predictions. Please ensure you have at least 2 weeks of meal preparation data with attendance records.
+                </div>
+                
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-bar" style="font-size: 5rem; color: #ccc;"></i>
+                    <h4 class="mt-3">No Predictions Available</h4>
+                    <p>Continue recording meal preparation data and attendance to enable predictions.</p>
+                    <form action="{{ url_for('analytics.generate_food_predictions') }}" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i> Try Generating Predictions
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Understanding the Prediction Model</h5>
+        </div>
+        <div class="card-body">
+            <p>The weekly food quantity prediction model uses machine learning to analyze patterns in historical data, including:</p>
+            <ul>
+                <li><strong>Attendance patterns</strong> - How many students typically attend each meal on specific days</li>
+                <li><strong>Consumption rates</strong> - How much food is typically consumed per student</li>
+                <li><strong>Day-specific trends</strong> - Variations in consumption patterns across different days of the week</li>
+                <li><strong>Meal-specific trends</strong> - Differences in consumption between breakfast, lunch, and dinner</li>
+            </ul>
+            
+            <p>The model learns from past patterns to provide accurate predictions for future meal planning. As more data is collected, the predictions will become increasingly accurate.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .prediction-quantity {
+        font-weight: bold;
+        color: #28a745;
+    }
+</style>
+{% endblock %}

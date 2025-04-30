@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-user-plus"></i> Student Registration</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('student.register_student') }}" id="registrationForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="roll_number" class="form-label">Roll Number</label>
+                        <input type="text" class="form-control" id="roll_number" name="roll_number" required>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Please ensure proper lighting for clear face recognition. Face the camera directly.
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="webcam-container mb-3">
+                        <video id="webcam-video" class="webcam-video" autoplay playsinline style="display: none;"></video>
+                        <canvas id="webcam-canvas" width="640" height="480" style="display: none;"></canvas>
+                        <div id="webcam-overlay" class="webcam-overlay">Processing...</div>
+                    </div>
+                    
+                    <div class="webcam-controls">
+                        <button type="button" id="start-webcam" class="btn btn-primary">
+                            <i class="fas fa-camera"></i> Start Camera
+                        </button>
+                        <button type="button" id="capture-image" class="btn btn-success" style="display: none;">
+                            <i class="fas fa-camera-retro"></i> Capture
+                        </button>
+                    </div>
+                    
+                    <!-- Hidden input to store the captured image -->
+                    <input type="hidden" name="image_data" id="image-data">
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary" id="register-btn">
+                    <i class="fas fa-save"></i> Register Student
+                </button>
+                <a href="{{ url_for('student.students_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> View All Students
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Explanation Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>About Face Registration</h3>
+    </div>
+    <div class="card-body">
+        <p>The system uses face recognition technology to identify students during meal attendance. For the best results:</p>
+        <ul>
+            <li>Ensure the student's face is clearly visible</li>
+            <li>Make sure there is adequate lighting</li>
+            <li>Remove glasses or other facial accessories that could interfere with recognition</li>
+            <li>Face the camera directly</li>
+        </ul>
+        <p>The captured image will be stored securely and used only for identification purposes within the mess management system.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize webcam with required element IDs
+        initWebcam(
+            'webcam-video',
+            'webcam-canvas',
+            'start-webcam',
+            'capture-image',
+            'image-data'
+        );
+        
+        // Form validation
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            const imageData = document.getElementById('image-data').value;
+            if (!imageData) {
+                e.preventDefault();
+                alert('Please capture a student image before submitting');
+            }
+        });
+    });
+</script>
+{% endblock %}

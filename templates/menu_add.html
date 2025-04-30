@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Menu Item - Mess Management System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2><i class="fas fa-plus"></i> Add Menu Item</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('menu.add_menu_item') }}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="day" class="form-label">Day</label>
+                        <select class="form-control" id="day" name="day" required>
+                            {% for day in days %}
+                            <option value="{{ day }}" {% if request.args.get('day') == day %}selected{% endif %}>{{ day }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="meal_type" class="form-label">Meal Type</label>
+                        <select class="form-control" id="meal_type" name="meal_type" required>
+                            {% for meal_type in meal_types %}
+                            <option value="{{ meal_type }}" {% if request.args.get('meal_type') == meal_type %}selected{% endif %}>{{ meal_type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label for="description" class="form-label">Menu Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                        <small class="form-text text-muted">
+                            Enter the full menu description for this meal. Include main dishes, sides, and desserts.
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Menu Item
+                </button>
+                <a href="{{ url_for('menu.view_menu') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Menu
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Information Card -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Menu Management Information</h3>
+    </div>
+    <div class="card-body">
+        <p>The weekly menu is used for meal planning and preparation. Each menu item is identified by a unique meal name that combines the day, meal type, and a unique identifier.</p>
+        <p>For example: <code>Mon_Break_1</code> for Monday Breakfast.</p>
+        <p>These meal names are used throughout the system to track attendance, food preparation, and waste analysis.</p>
+    </div>
+</div>
+{% endblock %}
